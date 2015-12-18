@@ -1,0 +1,16 @@
+{% extends "main.html" %}
+{% block content %}
+{% include "header.html" %}
+  <form action="{{url_for('deleteItem', category_id=category.id, item_id=item.id)}}" method="POST">
+  <div class="row">
+    <div class="small-12 columns">
+      <h1>Delete</h1>
+      <p>Are you sure you want to delete {{item.name}}?</p>
+      <input type="submit" class="button" value="Yes"/>
+      <a href="{{url_for('showItem', category_id=category.id, item_id=item.id)}}" class="button">No</a>
+    </div>
+  </div>
+  </form>
+
+
+{% endblock %}

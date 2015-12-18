@@ -1,0 +1,23 @@
+{% extends "main.html" %}
+{% block content %}
+{% include "header.html" %}
+  <div class="row">
+    <div class="small-12 columns">
+      <a href="{{url_for('showCategory', category_id=category.id)}}">
+      {{category.name}}
+      </a>
+      <hr>
+      <h3>{{item.name}}</h3>
+      <p>{{item.description}}</p>
+    </div>
+  </div>
+  <div class="row">
+    <div class="small-12 columns">
+      <a href="{{url_for('deleteItem', category_id=category.id, item_id=item.id)}}">Delete Item</a>
+      <a href="{{url_for('editItem', category_id=category.id, item_id=item.id)}}">
+      Edit item</a>
+    </div>
+  </div>
+
+
+{% endblock %}

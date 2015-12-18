@@ -1,0 +1,34 @@
+{% extends "main.html" %}
+{% block content %}
+{% include "header.html" %}
+
+  <div class="row">
+
+    <div class="large-6 medium-6 small-8 small-centered medium-centered large-centered columns">
+    <ul id="category-list">
+    {% for category in categories %}
+      <li>
+        <a 
+          href="{{url_for('showCategory', category_id=category.id)}}"
+          class="button"
+        >
+          {{category.name}}
+        </a>
+      </li>
+      
+    {% endfor %}
+      <li>
+        <a
+          href="{{url_for('newCategory')}}"
+          class="button"
+        >
+          <i class="fa fa-plus"></i>
+          Add new category
+        </a>
+      </li>
+    </ul>
+    </div>
+
+
+  </div>
+{% endblock %}
