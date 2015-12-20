@@ -3,7 +3,7 @@
 {% include "header.html" %}
   <div class="row">
     <div class="small-12 columns">
-      <a href="{{url_for('showCategory', category_id=category.id)}}">
+      <a href="{{url_for('showCategory', category_id=category.id)}}" class="category-link">
       {{category.name}}
       </a>
       <hr>
@@ -13,11 +13,24 @@
   </div>
   <div class="row">
     <div class="small-12 columns">
-      <a href="{{url_for('deleteItem', category_id=category.id, item_id=item.id)}}">Delete Item</a>
+      <ul class="button-list">
+
+      <li>
+      <button class="interact-button">
       <a href="{{url_for('editItem', category_id=category.id, item_id=item.id)}}">
       Edit item</a>
+      </button>
+      </li>
+      <li>
+      <button class="interact-button red-button"> 
+       <a href="{{url_for('deleteItem', category_id=category.id, item_id=item.id)}}">Delete Item</a>
+       </button>
+      </li>
+      </ul>
     </div>
   </div>
+
+
 
 
 {% endblock %}

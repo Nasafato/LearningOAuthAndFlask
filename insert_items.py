@@ -2,20 +2,17 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from database_setup import Category, Base, Item
 
-engine = create_engine('sqlite:///catalog.db')
-# Bind the engine to the metadata of the Base class so that the
-# declaratives can be accessed through a DBSession instance
+engine = create_engine('postgres://mxjecomshjznqn:Ky9M6DXhTdpW3CV2sCFlUJExht@ec2-54-83-204-159.compute-1.amazonaws.com:5432/d6iivi4caaqog9')
+
 Base.metadata.bind = engine
  
 DBSession = sessionmaker(bind=engine)
-# A DBSession() instance establishes all conversations with the database
-# and represents a "staging zone" for all the objects loaded into the
-# database session object. Any change made against the objects in the
-# session won't be persisted into the database until you call
-# session.commit(). If you're not happy about the changes, you can
-# revert all of them back to the last commit by calling
-# session.rollback()
+
 session = DBSession()
+
+session.query(Item).delete()
+session.query(Category).delete()
+session.commit()
 
 Category1 = Category(name = "Fridge Stuff")
 session.add(Category1)
@@ -40,6 +37,32 @@ Item1 = Item(name = "Detergent", description = "Used for making my clothes clean
 session.add(Item1)
 Item2 = Item(name = "Beach ball", description = "What the hell is this doing here, honestly.", category  = Category2)
 session.add(Item2)
+
+session.commit()
+
+Category3 = Category(name = "Closet")
+session.add(Category3)
+session.commit()
+Item1 = Item(name = "Flannel button-down", description = "A nice button-down from J.Crew", category  = Category3)
+session.add(Item1)
+Item2 = Item(name = "Undefinable socks", description = "What the hell are these.", category  = Category3)
+session.add(Item2)
+Item3 = Item(name = "Long-forgotten sweater", description = "Were you even alive when this was made?", category  = Category3)
+session.add(Item3)
+
+session.commit()
+
+Category4 = Category(name = "Bathroom")
+session.add(Category4)
+session.commit()
+Item1 = Item(name = "Soap", description = "Of course.", category  = Category4)
+session.add(Item1)
+Item2 = Item(name = "Empty shampoo bottle", description = "This is a little depressing.", category  = Category4)
+session.add(Item2)
+Item3 = Item(name = "Giant scrubber", description = "Definitely a useful piece of equipment", category  = Category4)
+session.add(Item3)
+Item4 = Item(name = "Book from 3 weeks ago", description = "So this is where you left it!", category  = Category4)
+session.add(Item4)
 
 session.commit()
 

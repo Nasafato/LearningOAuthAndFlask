@@ -2,27 +2,7 @@
 {% block content %}
 {% include "header.html" %}
 
-  <div class="row">
-    <div class="small-12 columns">
-       <div id="signInButton">
-          <span class="g-signin"
-            data-scope="openid email"
-            data-clientid="1003426189678-d6c1hdfrtj926832164ooucndd5lf5nj.apps.googleusercontent.com"
-            data-redirecturi="postmessage"
-            data-accesstype="offline"
-            data-cookiepolicy="single_host_origin"
-            data-callback="signInCallback"
-            data-approvalprompt="force">
-          </span>
-        </div>
-    </div>
-  </div>
-  <div class="row">
-    <div class="small-12 columns">
-      <div id="result"></div>
-      <div id="status"></div>
-    </div>
-  </div>
+
 
 <script>
 function signInCallback(authResult) {
@@ -101,11 +81,29 @@ function signInCallback(authResult) {
   }
 </script>
 
-<button>
+<div class="row">
+  <div class="small-12 columns">
+   <div id="signInButton">
+    <span class="g-signin"
+    data-scope="openid email"
+    data-clientid="1003426189678-d6c1hdfrtj926832164ooucndd5lf5nj.apps.googleusercontent.com"
+    data-redirecturi="postmessage"
+    data-accesstype="offline"
+    data-cookiepolicy="single_host_origin"
+    data-callback="signInCallback"
+    data-approvalprompt="force">
+  </span>
+</div>
+</div>
+</div>
+<div class="row">
+  <div class="small-12 columns">
     <fb:login-button scope="public_profile,email" onlogin="sendTokenToServer();">
     <a href='javascript:sendTokenToServer()'>Login with Facebook</a>
     </fb:login-button>
-  </button>
+</div>
+</div>
+
 
 
 

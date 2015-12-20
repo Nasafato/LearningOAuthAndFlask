@@ -17,22 +17,6 @@
       {% endfor %}
     </div>
   </div>
-  <div class="row">
-    <div class="small-12 large-6 medium-6 columns large-centered medium-centered small-centered background-link">
-      <ul class="button-list">
-      <li>
-      <button class="interact-button">
-      <a href="{{url_for('newItem', category_id=category.id)}}">New Item</a>
-      </button>
-      </li>
-      <li>
-      <button class="red-button interact-button">
-      <a href="{{url_for('deleteCategory', category_id=category.id)}}">Delete category</a>
-      </button>
-      </li>
-      </ul>
-    </div>
-  </div>
 {% endblock %}
 
 

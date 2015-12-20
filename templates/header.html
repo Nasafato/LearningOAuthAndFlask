@@ -1,16 +1,24 @@
 <header>
-<div class="row top-menu">
-  <div class="small-6">
+<nav class="top-bar">
+  <ul class="left">
+    <li>
+    <button>
     <a href="{{url_for('showCatalog')}}">
-      <span class="glyphicon glyphicon-home" aria-hidden="true"></span>Show all categories
+      Catalog
     </a>
-  </div>
-  <div class="small-6 text-right">
+    </button>
+    </li>
+  </ul>
+  <ul class="right">
+      <li>
+      <button>
       {% if 'username' not in session %}
       <a href="{{url_for('showLogin')}}">Click here to log in</a> 
       {% else %}
       <a href="{{url_for('disconnect')}}">Disconnect</a>
       {% endif %}
-  </div>
-</div>
+      </button>
+      </li>
+    </ul>
+</nav>
 </header>
