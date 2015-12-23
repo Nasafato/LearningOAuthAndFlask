@@ -2,22 +2,24 @@
 <nav class="top-bar">
   <ul class="left">
     <li>
-    <button>
     <a href="{{url_for('showCatalog')}}">
+    <button>
       Catalog
-    </a>
     </button>
+    </a>
     </li>
   </ul>
   <ul class="right">
       <li>
-      <button>
       {% if 'username' not in session %}
-      <a href="{{url_for('showLogin')}}">Click here to log in</a> 
-      {% else %}
-      <a href="{{url_for('disconnect')}}">Disconnect</a>
-      {% endif %}
+      <a href="{{url_for('showLogin')}}">
+      <button>
+      Click here to log in
       </button>
+      </a> 
+      {% else %}
+      <a href="{{url_for('disconnect')}}"><button>Disconnect</button></a>
+      {% endif %}
       </li>
     </ul>
 </nav>

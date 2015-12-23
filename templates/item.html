@@ -16,15 +16,18 @@
       <ul class="button-list">
 
       <li>
-      <button class="interact-button">
       <a href="{{url_for('editItem', category_id=category.id, item_id=item.id)}}">
-      Edit item</a>
+      <button class="interact-button">
+      Edit item
       </button>
+      </a>
       </li>
       <li>
-      <button class="interact-button red-button"> 
-       <a href="{{url_for('deleteItem', category_id=category.id, item_id=item.id)}}">Delete Item</a>
+       <a href="{{url_for('deleteItem', category_id=category.id, item_id=item.id)}}">
+       <button class="interact-button red-button"> 
+         Delete Item
        </button>
+       </a>
       </li>
       </ul>
     </div>

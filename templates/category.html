@@ -20,16 +20,20 @@
   <div class="row">
     <div class="small-12 large-6 medium-6 columns large-centered medium-centered small-centered background-link">
       <ul class="button-list">
-      <li>
-      <button class="interact-button">
-      <a href="{{url_for('newItem', category_id=category.id)}}">New Item</a>
-      </button>
-      </li>
-      <li>
-      <button class="red-button interact-button">
-      <a href="{{url_for('deleteCategory', category_id=category.id)}}">Delete category</a>
-      </button>
-      </li>
+        <li>
+          <a href="{{url_for('newItem', category_id=category.id)}}">
+            <button class="interact-button">
+              New Item
+            </button>
+          </a>
+        </li>
+        <li>
+          <a href="{{url_for('deleteCategory', category_id=category.id)}}">
+            <button class="red-button interact-button">
+              Delete category
+            </button>
+          </a>
+        </li>
       </ul>
     </div>
   </div>
