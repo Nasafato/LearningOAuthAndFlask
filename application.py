@@ -1,5 +1,4 @@
 from flask import Flask, render_template, url_for, request, redirect, flash, jsonify
-app = Flask(__name__)
 
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
@@ -16,8 +15,14 @@ import json
 from flask import make_response
 import requests
 
-# engine = create_engine('postgres://mxjecomshjznqn:Ky9M6DXhTdpW3CV2sCFlUJExht@ec2-54-83-204-159.compute-1.amazonaws.com:5432/d6iivi4caaqog9')
-engine = create_engine('sqlite:///catalog.db')
+# IMPORTS FOR SAVING IMAGES
+import os
+from werkzeug import secure_filename
+
+app = Flask(__name__)
+
+engine = create_engine('postgres://mxjecomshjznqn:Ky9M6DXhTdpW3CV2sCFlUJExht@ec2-54-83-204-159.compute-1.amazonaws.com:5432/d6iivi4caaqog9')
+# engine = create_engine('sqlite:///catalog.db')
 Base.metadata.bind = engine
 DBSession = sessionmaker(bind = engine)
 session = DBSession()
@@ -26,10 +31,13 @@ CLIENT_ID = json.loads(
     open('client_secrets.json', 'r').read())['web']['client_id']
 APPLICATION_NAME = "Catalog Application"
 
+UPLOAD_FOLDER = 'static/img/'
+ALLOWED_EXTENSIONS = set(['png', 'jpg', 'jpeg', 'gif'])
+ALLOWED_OBJECT_TYPES = set(['category', 'item', 'user'])
 
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
 # JSON API endpoints for catalog data
-
 @app.route('/catalog/JSON')
 def catalogJSON():
     categories = session.query(Category).all()
@@ -45,8 +53,8 @@ def categoryItemJSON(category_id, item_id):
     item = session.query(Item).filter_by(id=item_id).one()
     return jsonify(item = item.serialize)
 
-# Display catalog pages
 
+# Display catalog pages
 @app.route('/')
 @app.route('/catalog')
 def showCatalog():
@@ -70,13 +78,36 @@ def newCategory():
     else:
         return render_template('newCategory.html')
 
+# change category name or image
+@app.route('/catalog/<int:category_id>/edit', methods=['GET', 'POST'])
+def editCategory():
+    category_to_edit = session.query(Category).filter_by(id=category_id).one()
+    if 'username' not in login_session:
+        return redirect(url_for('showLogin'))
+    if category_to_edit.user_id != login_session['user_id']:
+        return '''
+        <script>function myFunction() {alert('You are not authorized to delete 
+        this category. Please create your own category in order to delete.');}
+        </script><body onload='myFunction()''>
+        '''
+    if request.method == 'POST':
+        category_to_edit.name = request.form['name']
+        session.add(category_to_edit)
+        session.commit()
+    else:
+        return_template('editCategory.html', category=category_to_edit)
+
 @app.route('/catalog/<int:category_id>/delete/', methods=['GET', 'POST'])
 def deleteCategory(category_id):
     category_to_delete = session.query(Category).filter_by(id=category_id).one()
     if 'username' not in login_session:
         return redirect(url_for('showLogin'))
     if category_to_delete.user_id != login_session['user_id']:
-        return "<script>function myFunction() {alert('You are not authorized to delete this category. Please create your own category in order to delete.');}</script><body onload='myFunction()''>"
+        return '''
+        <script>function myFunction() {alert('You are not authorized to delete 
+        this category. Please create your own category in order to delete.');}
+        </script><body onload='myFunction()''>
+        '''
     if request.method == 'POST':
         session.delete(category_to_delete)
         session.commit()
@@ -88,17 +119,32 @@ def deleteCategory(category_id):
 def showCategory(category_id):
     category = session.query(Category).filter_by(id = category_id).one()
     category_items = session.query(Item).filter_by(category_id = category_id)
-    return render_template('category.html', category = category, items = category_items)
+    return render_template('category.html', 
+        category = category, 
+        items = category_items)
 
 @app.route('/catalog/<int:category_id>/new', methods=['GET', 'POST'])
 def newItem(category_id):
+    # if no one is logged in, let the user log in
     if 'username' not in login_session:
         return redirect(url_for('showLogin'))
     category = session.query(Category).filter_by(id=category_id).one()
+
+    # if the category's owner is not the person currently logged in, deny 
+    # request to create new item
+    current_user = session.query(User).filter_by(id = login_session['user_id'])
     if category.user_id != login_session['user_id']:
-        return "<script>function myFunction() {alert('You are not authorized to edit this category. Please create your own category in order to edit.');}</script><body onload='myFunction()''>"
+        return '''
+            <script>function myFunction() {alert('You are not authorized
+            to edit this category. Please create your own category in order to
+            edit.');}</script><body onload='myFunction()''>
+        '''
+
     if request.method == 'POST':
-        newItem = Item(name=request.form['name'], description=request.form['description'], category_id=category.id)
+        newItem = Item(name=request.form['name'], 
+            description=request.form['description'], 
+            category_id=category.id,
+            user=current_user)
         session.add(newItem)
         session.commit()
         return redirect(url_for('showCategory', category_id=category_id))
@@ -132,6 +178,52 @@ def editItem(category_id, item_id):
     else:
         return render_template('editItem.html', category=category, item=editedItem)
 
+
+def addImage(image_file, object_type, object_id):
+    if image_file and is_allowed_filename(image_file.filename) and is_valid_type(object_type):
+        extension = extractFileExtension(image_file.filename)
+
+        filename = "{}.{}".format(object_id, extension)
+        filename = secure_filename(filename)
+
+        directory_path = app.config['UPLOAD_FOLDER'] + object_type + '/'
+        image_file.save(os.path.join(directory_path, filename))
+        return True
+    else:
+        return False 
+
+# adds a category image to the file system
+def addCategoryImage(image_file, category_id):
+    if image_file and is_allowed_filename(image_file.filename):
+        extension = extractFileExtension(image_file.filename)
+        filename = "{}.{}".format(category_id, extension)
+        filename = secure_filename(filename)
+        image_file.save(os.path.join(app.config['UPLOAD_FOLDER'] + 'category/', filename))
+        return True
+    else:
+        return False
+
+# adds a user's image to the file system
+def addUserImage(image_file, user_id):
+    if image_file and is_allowed_filename(image_file.filename):
+        extension = extractFileExtension(image_file.filename)
+        filename = "{}.{}".format(category_id, extension)
+        filename = secure_filename(filename)
+        image_file.save(os.path.join(app.config['UPLOAD_FOLDER'] + 'user/', filename))
+        return True
+    else:
+        return False
+
+def is_valid_type(object_type):
+    return object_type in ALLOWED_OBJECT_TYPES
+
+def extractFileExtension(filename):
+    extension = filename.split('.')[1]
+    return extension
+
+def allowed_file(filename):
+    return '.' in filename and \
+           filename.rsplit('.', 1)[1] in ALLOWED_EXTENSIONS
 
 
 @app.route('/catalog/<int:category_id>/<int:item_id>/delete', methods=['GET','POST'])

@@ -15,15 +15,22 @@
         </a>
         </li>
       {% endfor %}
+      <li>
+        <a
+          href="{{url_for('newItem', category_id=category.id)}}"
+          class="button">
+          <i class="fa fa-plus"></i>
+          New Item
+        </a>
     </div>
   </div>
   <div class="row">
     <div class="small-12 large-6 medium-6 columns large-centered medium-centered small-centered background-link">
       <ul class="button-list">
         <li>
-          <a href="{{url_for('newItem', category_id=category.id)}}">
+          <a href="{{url_for('editCategory', category_id=category.id)}}">
             <button class="interact-button">
-              New Item
+              Edit Category
             </button>
           </a>
         </li>

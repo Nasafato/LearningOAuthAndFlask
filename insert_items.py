@@ -1,9 +1,10 @@
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
-from database_setup import Category, Base, Item
+from database_setup import Category, Base, Item, User
+from application import addItemImage, addCategoryImage, addUserImage
 
-# engine = create_engine('postgres://mxjecomshjznqn:Ky9M6DXhTdpW3CV2sCFlUJExht@ec2-54-83-204-159.compute-1.amazonaws.com:5432/d6iivi4caaqog9')
-engine = create_engine('sqlite:///catalog.db')
+engine = create_engine('postgres://mxjecomshjznqn:Ky9M6DXhTdpW3CV2sCFlUJExht@ec2-54-83-204-159.compute-1.amazonaws.com:5432/d6iivi4caaqog9')
+#engine = create_engine('sqlite:///catalog.db')
 
 Base.metadata.bind = engine
  
@@ -15,7 +16,11 @@ session.query(Item).delete()
 session.query(Category).delete()
 session.commit()
 
-Category1 = Category(name = "Fridge Stuff")
+User1 = User(name="Alan Gou", email="goutechnology@gmail.com")
+session.add(User1)
+session.commit()
+
+Category1 = Category(name = "Fridge Stuff", user = User1)
 session.add(Category1)
 session.commit()
 Item1 = Item(name = "Onions", description = "A bag of nice, red onions", category  = Category1)
@@ -31,7 +36,7 @@ session.add(Item5)
 
 session.commit()
 
-Category2 = Category(name = "Laundry Room")
+Category2 = Category(name = "Laundry Room", user = User1)
 session.add(Category2)
 session.commit()
 Item1 = Item(name = "Detergent", description = "Used for making my clothes clean.", category  = Category2)
@@ -41,7 +46,7 @@ session.add(Item2)
 
 session.commit()
 
-Category3 = Category(name = "Closet")
+Category3 = Category(name = "Closet", user = User1)
 session.add(Category3)
 session.commit()
 Item1 = Item(name = "Flannel button-down", description = "A nice button-down from J.Crew", category  = Category3)
@@ -53,7 +58,7 @@ session.add(Item3)
 
 session.commit()
 
-Category4 = Category(name = "Bathroom")
+Category4 = Category(name = "Bathroom", user = User1)
 session.add(Category4)
 session.commit()
 Item1 = Item(name = "Soap", description = "Of course.", category  = Category4)
