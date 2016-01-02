@@ -79,21 +79,19 @@ def show_catalog():
 def new_category():
     """Page to create new categories"""
     if 'username' not in login_session:
+        flash('You must be logged in to create a category')
         return redirect(url_for('show_login'))
-
     if request.method == 'POST':
-        current_user = session.query(User).filter_by(id=login_session['user_id']).one()
-
+        current_user = session.query(User).filter_by(
+                            id=login_session['user_id']).one()
         category_to_add = Category(
             user=current_user,
             name=request.form['name'],
             picture=add_image(request.files['image-file'], 'category')
             )
-
         session.add(category_to_add)
         flash('New category "%s" successfully created' % category_to_add.name)
         session.commit()
-
         return redirect(url_for('show_catalog'))
     else:
         return render_template('newCategory.html')
@@ -106,23 +104,23 @@ def edit_category(category_id):
     category_to_edit = session.query(Category).filter_by(id=category_id).one()
 
     if 'username' not in login_session:
+        flash('You must be logged in to edit a category')
         return redirect(url_for('show_login'))
 
     if category_to_edit.user_id != login_session['user_id']:
-        return '''
-        <script>function myFunction() {alert('You are not authorized to delete 
-        this category. Please create your own category in order to delete.');}
-        </script><body onload='myFunction()''>
-        '''
+        flash('You are not authorized to edit this category')
+        return redirect(url_for('show_category', category_id=category_id))
     if request.method == 'POST':
         if request.form['name']:
             category_to_edit.name = request.form['name']
-
         image_file = request.files['image_file']
+        if image_file:
+            if category_to_edit.picture:
+                delete_image(category_to_edit.picture)
+            category_to_edit.picture = add_image(image_file, 'item')
         path = add_image(image_file, 'category')
         if path:
             category_to_edit.picture = path
-
         session.add(category_to_edit)
         session.commit()
         flash('You have edited "{}"'.format(category_to_edit.name))
@@ -136,14 +134,15 @@ def delete_category(category_id):
     """Page to delete a category (also deletes all items under it)"""
     category_to_delete = session.query(Category).filter_by(id=category_id).one()
     items_to_delete = session.query(Item).filter_by(category=category_to_delete)
+
     if 'username' not in login_session:
+        flash('You must be logged in to delete a category')
         return redirect(url_for('show_login'))
+
     if category_to_delete.user_id != login_session['user_id']:
-        return '''
-        <script>function myFunction() {alert('You are not authorized to delete 
-        this category. Please create your own category in order to delete.');}
-        </script><body onload='myFunction()''>
-        '''
+        flash('You are not authorized to delete this category')
+        return redirect(url_for('show_category', category_id=category_id))
+
     if request.method == 'POST':
         if category_to_delete.picture:
             delete_image(category_to_delete.picture)
@@ -175,27 +174,25 @@ def new_item(category_id):
     """Shows page for creating a new item"""
     # if no one is logged in, let the user log in
     if 'username' not in login_session:
+        flash('You must be logged in and the owner of the category in order to '
+              'add items')
         return redirect(url_for('show_login'))
     category = session.query(Category).filter_by(id=category_id).one()
 
     # if the category's owner is not the person currently logged in, deny
     # request to create new item
     if category.user_id != login_session['user_id']:
-        return '''
-            <script>function myFunction() {alert('You are not authorized
-            to edit this category. Please create your own category in order to
-            edit.');}</script><body onload='myFunction()''>
-        '''
+        flash('You are not authorized to create new items - please create your '
+              'own category in order to create items')
+        return redirect(url_for('show_category', category_id=category_id))
 
     if request.method == 'POST':
-
         item_to_add = Item(
             name=request.form['name'],
             description=request.form['description'],
             category_id=category.id,
             picture=add_image(request.files['image-file'], 'item')
             )
-
         session.add(item_to_add)
         session.commit()
         flash('You have added "{}"'
@@ -213,34 +210,36 @@ def show_item(category_id, item_id):
     return render_template('item.html', category=category, item=item)
 
 
-@app.route('/catalog/<int:category_id>/<int:item_id>/edit', methods=['GET', 'POST'])
+@app.route('/catalog/<int:category_id>/<int:item_id>/edit',
+           methods=['GET', 'POST'])
 def edit_item(category_id, item_id):
     """Shows page for editing an item"""
     if 'username' not in login_session:
+        flash('You must be logged in and the owner of the category in order to '
+              'edit items')
         return redirect(url_for('show_login'))
 
     category = session.query(Category).filter_by(id=category_id).one()
     edited_item = session.query(Item).filter_by(id=item_id).one()
 
     if category.user_id != login_session['user_id']:
-        return ("<script>function myFunction() {alert('You are not authorized "
-                "to edit this item. Please create your own category in order to"
-                " edit.');}</script><body onload='myFunction()''>")
+        flash('You are not authorized to edit this item - please create your '
+              'own category in order to edit')
+        return redirect(url_for('show_category', category_id=category_id))
 
+    # changes name, description, and image (and removes old image)
     if request.method == 'POST':
         edited_item.name = request.form['name']
-
         image_file = request.files['image_file']
-        edited_item.picture = add_image(image_file, 'item')
-
+        if image_file:
+            if edited_item.picture:
+                delete_image(edited_item.picture)
+            edited_item.picture = add_image(image_file, 'item')
         edited_item.description = request.form['description']
-
         session.add(edited_item)
         session.commit()
-
         flash('You have edited "{}"'
               ' to "{}"'.format(edited_item.name, category.name))
-
         return redirect(url_for('show_category',
                                 category_id=category_id,
                                 item_id=item_id))
@@ -250,19 +249,22 @@ def edit_item(category_id, item_id):
                                item=edited_item)
 
 
-@app.route('/catalog/<int:category_id>/<int:item_id>/delete', methods=['GET', 'POST'])
+@app.route('/catalog/<int:category_id>/<int:item_id>/delete',
+           methods=['GET', 'POST'])
 def delete_item(category_id, item_id):
-    """Page to delete an item"""
+    """Page to delete an item - deletes item and its image"""
     if 'username' not in login_session:
+        flash('You must be logged in and the owner of the category in order to '
+              'delete items')
         return redirect(url_for('show_login'))
 
     category = session.query(Category).filter_by(id=category_id).one()
     item = session.query(Item).filter_by(id=item_id).one()
 
     if category.user_id != login_session['user_id']:
-        return ("<script>function myFunction() {alert('You are not authorized "
-                "to edit this item. Please create your own category in order to"
-                " edit.');}</script><body onload='myFunction()''>")
+        flash('You are not authorized to delete this item - please create your '
+              'own category in order to make changes')
+        return redirect(url_for('show_category', category_id=category_id))
 
     if request.method == 'POST':
         if item.picture:
@@ -514,7 +516,8 @@ def fbconnect():
     login_session['access_token'] = stored_token
 
     # Get user picture
-    url = 'https://graph.facebook.com/v2.4/me/picture?%s&redirect=0&height=200&width=200' % token
+    url = ('https://graph.facebook.com/v2.4/me/picture?%s&redirect=0&height=200'
+           '&width=200') % token
     http = httplib2.Http()
     result = http.request(url, 'GET')[1]
     data = json.loads(result)
@@ -547,7 +550,8 @@ def fbdisconnect():
     facebook_id = login_session['facebook_id']
     # The access token must me included to successfully logout
     access_token = login_session['access_token']
-    url = 'https://graph.facebook.com/%s/permissions?access_token=%s' % (facebook_id, access_token)
+    url = ('https://graph.facebook.com/%s/permissions?access_token=%s' %
+           (facebook_id, access_token))
     http = httplib2.Http()
     result = http.request(url, 'DELETE')[1]
     return result
@@ -576,7 +580,7 @@ def disconnect():
         return redirect(url_for('show_catalog'))
 
 if __name__ == '__main__':
-    app.secret_key = 'super secret key'
+    app.secret_key = '3d871124-9d1b-46b2-b92f-ff4a46816f89'
     app.debug = True
     app.run(host='0.0.0.0', port=5000)
     # setting host to 0.0.0.0 tells app to listen on all public IP addresses
