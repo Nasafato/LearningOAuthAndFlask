@@ -1,7 +1,5 @@
 # Catalog Project
-___
-
-### Getting Up and Running
+## Getting Up and Running
 I'm assuming that you're starting from scratch. These are the steps needed to run this in a virtual machine. We'll be using **vagrant**.
 
 So first, you'll need **vagrant** and **VirtualBox** installed.. Once that's done, we can proceed.
@@ -76,3 +74,15 @@ and uncomment this line:
 # engine = create_engine('sqlite:///catalog.db')
 ```
 With that accomplished, you should be able to use the SQLite database instead of the PostgreSQL database.
+
+
+## Characteristics
+JSON endpoints can be accessed in the following way:
+
+* JSON for entire catalog - `http://localhost:5000/catalog/JSON`
+* JSON for one category - `http://localhost:5000/catalog/2/JSON`
+* JSON for one item - `http://localhost:5000/catalog/2/7/JSON`
+
+Images are stored in the filesystem, inside `static/img/` - the `picture` fields for a `category` or `item` are the paths to their respective images. Images, upon upload, are saved with a generated UUID4 as their name.
+
+
