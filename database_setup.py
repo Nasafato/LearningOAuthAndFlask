@@ -66,8 +66,8 @@ class Item(Base):
 
 
 
-engine = create_engine('postgres://mxjecomshjznqn:Ky9M6DXhTdpW3CV2sCFlUJExht@ec2-54-83-204-159.compute-1.amazonaws.com:5432/d6iivi4caaqog9')
-#engine = create_engine('sqlite:///catalog.db')
+#engine = create_engine('postgres://mxjecomshjznqn:Ky9M6DXhTdpW3CV2sCFlUJExht@ec2-54-83-204-159.compute-1.amazonaws.com:5432/d6iivi4caaqog9')
+engine = create_engine('sqlite:///catalog.db')
  
 
 Base.metadata.create_all(engine)

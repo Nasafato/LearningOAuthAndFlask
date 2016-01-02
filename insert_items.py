@@ -1,10 +1,9 @@
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from database_setup import Category, Base, Item, User
-from application import addImage
 
-engine = create_engine('postgres://mxjecomshjznqn:Ky9M6DXhTdpW3CV2sCFlUJExht@ec2-54-83-204-159.compute-1.amazonaws.com:5432/d6iivi4caaqog9')
-#engine = create_engine('sqlite:///catalog.db')
+#engine = create_engine('postgres://mxjecomshjznqn:Ky9M6DXhTdpW3CV2sCFlUJExht@ec2-54-83-204-159.compute-1.amazonaws.com:5432/d6iivi4caaqog9')
+engine = create_engine('sqlite:///catalog.db')
 
 Base.metadata.bind = engine
  

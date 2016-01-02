@@ -27,7 +27,7 @@ app = Flask(__name__)
 engine = create_engine(
     ('postgres://mxjecomshjznqn:Ky9M6DXhTdpW3CV2sCFlUJExht@ec2-54-83-204-159.co'
      'mpute-1.amazonaws.com:5432/d6iivi4caaqog9'))
-# engine = create_engine('sqlite:///catalog.db')
+#engine = create_engine('sqlite:///catalog.db')
 Base.metadata.bind = engine
 db_session = sessionmaker(bind=engine)
 session = db_session()
