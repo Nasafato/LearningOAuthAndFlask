@@ -2,13 +2,13 @@
 {% block content %}
 {% include "header.html" %}
 
-  <form action="{{url_for('deleteCategory', category_id=category.id)}}" method="POST">
+  <form action="{{url_for('delete_category', category_id=category.id)}}" method="POST">
     <div class="row">
       <div class="small-6 medium-6 large-6 columns large-centered medium-centered small-centered">
       <h1>Delete</h1>
       <p>Are you sure you want to delete {{category.name}}?</p>
       <input type="submit" class="button" value="Yes"/>
-      <a href="{{url_for('showCategory', category_id=category.id)}}" class="button red-button">No</a>
+      <a href="{{url_for('show_category', category_id=category.id)}}" class="button red-button">No</a>
     </div>
   </form>
   

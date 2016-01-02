@@ -2,18 +2,17 @@
 {% block content %}
 {% include "header.html" %}
 
-  <form action="{{url_for('new_category')}}" method="POST" enctype="multipart/form-data">
+  <form action="{{url_for('edit_category', category_id=category.id)}}" enctype="multipart/form-data" method="POST">
     <div class="row">
       <div class="small-6 medium-6 large-6 columns large-centered medium-centered small-centered">
-      <h1>Create New Category</h1>
-      <hr>
+      <h1>Edit Category</h1>
       <label>
       Category Name
-      <input type="text" placeholder="Type in a name" name="name" />
+      <input type="text" placeholder="{{category.name}}" name="name" />
       </label>
       <label>
       Category Image
-      <input type="file" name="image-file" />
+      <input type="file" name="image_file" />
       </label>
       <input type="submit" class="button" value="Submit"/>
       <a href="{{url_for('show_catalog')}}" class="button red-button">Cancel</a>

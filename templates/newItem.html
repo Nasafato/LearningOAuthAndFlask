@@ -3,21 +3,27 @@
 {% include "header.html" %}
   <div class="row">
     <div class="small-12 columns">
-      <h2>{{category.name}}</h2>
+      <h1>{{category.name}}</h1>
       <hr>
+      <h2>Adding new item</h2>
+      <br>
     </div>
   </div>
-  <form action="{{url_for('newItem', category_id=category.id)}}" method="POST">
+        <form action="{{url_for('new_item', category_id=category.id)}}" method="POST" enctype="multipart/form-data">
     <div class="row">
       <div class="small-12 columns">
-        <label>Item name
-        <input type="text" name="name" placeholder="Type in a name">
+        <label>Item Name
+        <input type="text" name="name" placeholder="Type in a name" />
+        </label>
+        <label>
+        Item Image
+        <input type="file" name="image-file" />
         </label>
         <label>Item Description
         <textarea name="description" placeholder="Type in a description"></textarea>
         </label>
         <input type="submit" class="button" value="Submit">
-        <a href="{{url_for('showCategory', category_id=category.id)}}" class="button red-button">Cancel</a>
+        <a href="{{url_for('show_category', category_id=category.id)}}" class="button red-button">Cancel</a>
       </div>
     </div>
   </form>

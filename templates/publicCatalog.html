@@ -9,7 +9,7 @@
     {% for category in categories %}
       <li>
         <a 
-          href="{{url_for('showCategory', category_id=category.id)}}"
+          href="{{url_for('show_category', category_id=category.id)}}"
           class="button"
         >
           {{category.name}}

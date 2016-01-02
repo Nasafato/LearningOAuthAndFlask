@@ -3,13 +3,16 @@
 {% include "header.html" %}
   <div class="row">
     <div class="small-12 large-6 medium-6 columns large-centered medium-centered small-centered">
-      <h2>{{category.name}}</h2>
+      <h1>{{category.name}}</h1>
+      {% if category.picture %}
+      <img class="category-image" src="{{category.picture}}" />
+      {% endif %}
       <hr>
       <ul id="item-list" class="large-centered medium-centered small-centered button-list">
       {% for item in items %}
         <li>
         <a 
-          href="{{url_for('showItem', category_id = category.id, item_id = item.id)}}"
+          href="{{url_for('show_item', category_id = category.id, item_id = item.id)}}"
           class="button">
           {{item.name}}
         </a>
@@ -17,7 +20,7 @@
       {% endfor %}
       <li>
         <a
-          href="{{url_for('newItem', category_id=category.id)}}"
+          href="{{url_for('new_item', category_id=category.id)}}"
           class="button">
           <i class="fa fa-plus"></i>
           New Item
@@ -28,14 +31,14 @@
     <div class="small-12 large-6 medium-6 columns large-centered medium-centered small-centered background-link">
       <ul class="button-list">
         <li>
-          <a href="{{url_for('editCategory', category_id=category.id)}}">
+          <a href="{{url_for('edit_category', category_id=category.id)}}">
             <button class="interact-button">
               Edit Category
             </button>
           </a>
         </li>
         <li>
-          <a href="{{url_for('deleteCategory', category_id=category.id)}}">
+          <a href="{{url_for('delete_category', category_id=category.id)}}">
             <button class="red-button interact-button">
               Delete category
             </button>

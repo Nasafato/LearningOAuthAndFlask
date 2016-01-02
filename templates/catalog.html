@@ -9,7 +9,7 @@
     {% for category in categories %}
       <li>
         <a 
-          href="{{url_for('showCategory', category_id=category.id)}}"
+          href="{{url_for('show_category', category_id=category.id)}}"
           class="button"
         >
           {{category.name}}
@@ -19,7 +19,7 @@
     {% endfor %}
       <li>
         <a
-          href="{{url_for('newCategory')}}"
+          href="{{url_for('new_category')}}"
           class="button"
         >
           <i class="fa fa-plus"></i>

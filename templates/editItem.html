@@ -1,18 +1,22 @@
 {% extends "main.html" %}
 {% block content %}
 {% include "header.html" %}
-  <form action="{{url_for('editItem', category_id=category.id, item_id=item.id)}}" method="POST">
+  <form action="{{url_for('edit_item', category_id=category.id, item_id=item.id)}}" method="POST" enctype="multipart/form-data">
   <div class="row">
     <div class="small-12 columns">
       <h1>Editing {{item.name}}</h1>
       <label>Edit Name
-      <input type="text" name="name" value="{{item.name}}">
+        <input type="text" name="name" value="{{item.name}}" />
+      </label>
+      <label>Edit Image
+        <input type="file" name="image_file" />
       </label>
       <label>Edit Description
-      <textarea name="description">{{item.description}}</textarea>
+        <textarea name="description">{{item.description}}</textarea>
       </label>
+      
       <input class="button" type="submit" value="Submit">
-      <a href="{{url_for('showItem', category_id=category.id, item_id=item.id)}}" class="button red-button">Cancel</a>
+      <a href="{{url_for('show_item', category_id=category.id, item_id=item.id)}}" class="button red-button">Cancel</a>
     </div>
   </div>
   </form>

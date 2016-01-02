@@ -9,7 +9,7 @@
       {% for item in items %}
         <li>
         <a 
-          href="{{url_for('showItem', category_id = category.id, item_id = item.id)}}"
+          href="{{url_for('show_item', category_id = category.id, item_id = item.id)}}"
           class="button">
           {{item.name}}
         </a>

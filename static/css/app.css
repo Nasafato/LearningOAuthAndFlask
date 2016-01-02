@@ -65,8 +65,27 @@ a.button {
 
 .button-list {
    list-style: none;
+   margin-left: 0;
 }
 
 .category-link {
    color: black;
+}
+
+.category-link:hover {
+  color: gray;
+}
+
+.item-image {
+  max-width: 200px;
+  max-height: 200px;
+}
+
+.category-image {
+  max-width: 300px;
+  max-height: 300px;
+}
+
+.flash {
+  text-align: center;
 }
