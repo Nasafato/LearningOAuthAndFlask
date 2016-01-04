@@ -24,10 +24,11 @@ from database_setup import Category, Base, Item, User
 
 app = Flask(__name__)
 
-engine = create_engine(
-    ('postgres://mxjecomshjznqn:Ky9M6DXhTdpW3CV2sCFlUJExht@ec2-54-83-204-159.co'
-     'mpute-1.amazonaws.com:5432/d6iivi4caaqog9'))
+#engine = create_engine(
+#    ('postgres://mxjecomshjznqn:Ky9M6DXhTdpW3CV2sCFlUJExht@ec2-54-83-204-159.co'
+#     'mpute-1.amazonaws.com:5432/d6iivi4caaqog9'))
 #engine = create_engine('sqlite:///catalog.db')
+engine = create_engine('postgres://catalog:password@localhost/catalog')
 Base.metadata.bind = engine
 db_session = sessionmaker(bind=engine)
 session = db_session()
@@ -116,11 +117,11 @@ def edit_category(category_id):
         image_file = request.files['image_file']
         if image_file:
             if category_to_edit.picture:
-                delete_image(category_to_edit.picture)
-            category_to_edit.picture = add_image(image_file, 'item')
-        path = add_image(image_file, 'category')
-        if path:
-            category_to_edit.picture = path
+                try:
+                    delete_image(category_to_edit.picture)
+                except OSError:
+                    pass
+            category_to_edit.picture = add_image(image_file, 'category')
         session.add(category_to_edit)
         session.commit()
         flash('You have edited "{}"'.format(category_to_edit.name))
@@ -145,10 +146,16 @@ def delete_category(category_id):
 
     if request.method == 'POST':
         if category_to_delete.picture:
-            delete_image(category_to_delete.picture)
+            try:
+                delete_image(category_to_delete.picture)
+            except OSError:
+                pass
         for item in items_to_delete:
-            if item.picture:
+            try:
                 delete_image(item.picture)
+            except OSError:
+                pass
+            session.delete(item)
 
         session.delete(category_to_delete)
         session.commit()
@@ -233,7 +240,10 @@ def edit_item(category_id, item_id):
         image_file = request.files['image_file']
         if image_file:
             if edited_item.picture:
-                delete_image(edited_item.picture)
+                try:
+                    delete_image(edited_item.picture)
+                except OSError:
+                    pass
             edited_item.picture = add_image(image_file, 'item')
         edited_item.description = request.form['description']
         session.add(edited_item)
@@ -268,7 +278,10 @@ def delete_item(category_id, item_id):
 
     if request.method == 'POST':
         if item.picture:
-            delete_image(item.picture)
+            try:
+                delete_image(item.picture)
+            except OSError:
+                pass
         session.delete(item)
         session.commit()
         flash('You have deleted "{}"'
