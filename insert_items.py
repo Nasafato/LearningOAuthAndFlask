@@ -3,8 +3,8 @@ from sqlalchemy.orm import sessionmaker
 from database_setup import Category, Base, Item, User
 
 #engine = create_engine('postgres://mxjecomshjznqn:Ky9M6DXhTdpW3CV2sCFlUJExht@ec2-54-83-204-159.compute-1.amazonaws.com:5432/d6iivi4caaqog9')
-engine = create_engine('sqlite:///catalog.db')
-
+#engine = create_engine('sqlite:///catalog.db')
+engine = create_engine('postgres://catalog:8c33481e-9a13-4f23-89bd-8e81beecdd5d@localhost/catalog')
 Base.metadata.bind = engine
  
 DBSession = sessionmaker(bind=engine)
@@ -13,6 +13,7 @@ session = DBSession()
 
 session.query(Item).delete()
 session.query(Category).delete()
+session.query(User).delete()
 session.commit()
 
 User1 = User(name="Alan Gou", email="goutechnology@gmail.com")

@@ -24,23 +24,26 @@ from database_setup import Category, Base, Item, User
 
 app = Flask(__name__)
 
-engine = create_engine(
-    ('postgres://mxjecomshjznqn:Ky9M6DXhTdpW3CV2sCFlUJExht@ec2-54-83-204-159.co'
-     'mpute-1.amazonaws.com:5432/d6iivi4caaqog9'))
+#engine = create_engine(
+#    ('postgres://mxjecomshjznqn:Ky9M6DXhTdpW3CV2sCFlUJExht@ec2-54-83-204-159.co'
+#     'mpute-1.amazonaws.com:5432/d6iivi4caaqog9'))
 #engine = create_engine('sqlite:///catalog.db')
+engine = create_engine('postgres://catalog:8c33481e-9a13-4f23-89bd-8e81beecdd5d@localhost/catalog')
 Base.metadata.bind = engine
 db_session = sessionmaker(bind=engine)
 session = db_session()
 
 CLIENT_ID = json.loads(
-    open('client_secrets.json', 'r').read())['web']['client_id']
+    open('/var/www/catalog/catalog/client_secrets.json', 'r').read())['web']['client_id']
 APPLICATION_NAME = "Catalog Application"
 
-UPLOAD_FOLDER = 'static/img/'
+RELATIVE_UPLOAD_FOLDER = 'static/img'
+UPLOAD_FOLDER = '/var/www/catalog/catalog/static/img/'
 ALLOWED_EXTENSIONS = set(['png', 'jpg', 'jpeg', 'gif'])
 ALLOWED_OBJECT_TYPES = set(['category', 'item', 'user'])
 
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+app.config['RELATIVE_UPLOAD_FOLDER'] = RELATIVE_UPLOAD_FOLDER
 
 # JSON API endpoints for catalog data
 @app.route('/catalog/JSON')
@@ -117,10 +120,7 @@ def edit_category(category_id):
         if image_file:
             if category_to_edit.picture:
                 delete_image(category_to_edit.picture)
-            category_to_edit.picture = add_image(image_file, 'item')
-        path = add_image(image_file, 'category')
-        if path:
-            category_to_edit.picture = path
+            category_to_edit.picture = add_image(image_file, 'category')
         session.add(category_to_edit)
         session.commit()
         flash('You have edited "{}"'.format(category_to_edit.name))
@@ -290,18 +290,18 @@ def add_image(image_file, object_type):
         filename = "{}.{}".format(str(uuid.uuid4()), extension)
         filename = secure_filename(filename)
 
-        path = os.path.join(app.config['UPLOAD_FOLDER'], object_type, filename)
-        image_file.save(path)
-        # add '/' to make filepath absolute
-        return '/' + path
+	relative_path = os.path.join('/static/img', object_type, filename)
+        full_path = os.path.join(app.config['UPLOAD_FOLDER'], object_type, filename)
+        image_file.save(full_path)
+        return relative_path
     else:
         return None
 
 
 def delete_image(filepath):
     """Removes an image from the filesystem"""
-    # remove first '/' to make filepath relative
-    os.remove(filepath[1:])
+    delete_path = os.path.join('/var/www/catalog/catalog', filepath[1:])
+    os.remove(delete_path)
 
 
 def is_valid_type(object_type):
@@ -369,7 +369,7 @@ def gconnect():
 
     try:
         # Upgrade the authorization code into a credentials object
-        oauth_flow = flow_from_clientsecrets('client_secrets.json', scope='')
+        oauth_flow = flow_from_clientsecrets('/var/www/catalog/catalog/client_secrets.json', scope='')
         oauth_flow.redirect_uri = 'postmessage'
         credentials = oauth_flow.step2_exchange(code)
     except FlowExchangeError:
@@ -483,10 +483,10 @@ def fbconnect():
     access_token = request.data
     print "access token received %s " % access_token
 
-    app_id = json.loads(open('fb_client_secrets.json', 'r').read())[
+    app_id = json.loads(open('/var/www/catalog/catalog/fb_client_secrets.json', 'r').read())[
         'web']['app_id']
     app_secret = json.loads(
-        open('fb_client_secrets.json', 'r').read())['web']['app_secret']
+        open('/var/www/catalog/catalog/fb_client_secrets.json', 'r').read())['web']['app_secret']
     url = ('https://graph.facebook.com/oauth/access_token?grant_type=fb_exchang'
            'e_token&client_'
            'id={0}&client_secret={1}&fb_exchange_token={2}').format(
@@ -581,6 +581,6 @@ def disconnect():
 
 if __name__ == '__main__':
     app.secret_key = '3d871124-9d1b-46b2-b92f-ff4a46816f89'
-    app.debug = True
+    app.debug = False
     app.run(host='0.0.0.0', port=5000)
     # setting host to 0.0.0.0 tells app to listen on all public IP addresses
