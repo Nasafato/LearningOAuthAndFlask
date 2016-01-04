@@ -28,13 +28,15 @@ app = Flask(__name__)
 #    ('postgres://mxjecomshjznqn:Ky9M6DXhTdpW3CV2sCFlUJExht@ec2-54-83-204-159.co'
 #     'mpute-1.amazonaws.com:5432/d6iivi4caaqog9'))
 #engine = create_engine('sqlite:///catalog.db')
-engine = create_engine('postgres://catalog:8c33481e-9a13-4f23-89bd-8e81beecdd5d@localhost/catalog')
+engine = create_engine(
+    'postgres://catalog:8c33481e-9a13-4f23-89bd-8e81beecdd5d@localhost/catalog')
 Base.metadata.bind = engine
 db_session = sessionmaker(bind=engine)
 session = db_session()
 
 CLIENT_ID = json.loads(
-    open('/var/www/catalog/catalog/client_secrets.json', 'r').read())['web']['client_id']
+    open('/var/www/catalog/catalog/client_secrets.json',
+             'r').read())['web']['client_id']
 APPLICATION_NAME = "Catalog Application"
 
 RELATIVE_UPLOAD_FOLDER = 'static/img'
@@ -119,7 +121,10 @@ def edit_category(category_id):
         image_file = request.files['image_file']
         if image_file:
             if category_to_edit.picture:
-                delete_image(category_to_edit.picture)
+                try:
+                    delete_image(category_to_edit.picture)
+                except OSError:
+                    pass
             category_to_edit.picture = add_image(image_file, 'category')
         session.add(category_to_edit)
         session.commit()
@@ -145,10 +150,16 @@ def delete_category(category_id):
 
     if request.method == 'POST':
         if category_to_delete.picture:
-            delete_image(category_to_delete.picture)
+            try:
+                delete_image(category_to_delete.picture)
+            except OSError:
+                pass
         for item in items_to_delete:
-            if item.picture:
+            try:
                 delete_image(item.picture)
+            except OSError:
+                pass
+            session.delete(item)
 
         session.delete(category_to_delete)
         session.commit()
@@ -233,7 +244,10 @@ def edit_item(category_id, item_id):
         image_file = request.files['image_file']
         if image_file:
             if edited_item.picture:
-                delete_image(edited_item.picture)
+                try:
+                    delete_image(edited_item.picture)
+                except OSError:
+                    pass
             edited_item.picture = add_image(image_file, 'item')
         edited_item.description = request.form['description']
         session.add(edited_item)
@@ -268,7 +282,10 @@ def delete_item(category_id, item_id):
 
     if request.method == 'POST':
         if item.picture:
-            delete_image(item.picture)
+            try:
+                delete_image(item.picture)
+            except OSError:
+                pass
         session.delete(item)
         session.commit()
         flash('You have deleted "{}"'
@@ -290,8 +307,10 @@ def add_image(image_file, object_type):
         filename = "{}.{}".format(str(uuid.uuid4()), extension)
         filename = secure_filename(filename)
 
-	relative_path = os.path.join('/static/img', object_type, filename)
-        full_path = os.path.join(app.config['UPLOAD_FOLDER'], object_type, filename)
+        relative_path = os.path.join('/static/img', object_type, filename)
+        full_path = os.path.join(app.config['UPLOAD_FOLDER'],
+                                 object_type,
+                                 filename)
         image_file.save(full_path)
         return relative_path
     else:
@@ -369,7 +388,8 @@ def gconnect():
 
     try:
         # Upgrade the authorization code into a credentials object
-        oauth_flow = flow_from_clientsecrets('/var/www/catalog/catalog/client_secrets.json', scope='')
+        oauth_flow = flow_from_clientsecrets(
+            '/var/www/catalog/catalog/client_secrets.json', scope='')
         oauth_flow.redirect_uri = 'postmessage'
         credentials = oauth_flow.step2_exchange(code)
     except FlowExchangeError:
@@ -483,10 +503,12 @@ def fbconnect():
     access_token = request.data
     print "access token received %s " % access_token
 
-    app_id = json.loads(open('/var/www/catalog/catalog/fb_client_secrets.json', 'r').read())[
-        'web']['app_id']
+    app_id = json.loads(open(
+        '/var/www/catalog/catalog/fb_client_secrets.json', 'r').read())[
+            'web']['app_id']
     app_secret = json.loads(
-        open('/var/www/catalog/catalog/fb_client_secrets.json', 'r').read())['web']['app_secret']
+        open('/var/www/catalog/catalog/fb_client_secrets.json',
+             'r').read())['web']['app_secret']
     url = ('https://graph.facebook.com/oauth/access_token?grant_type=fb_exchang'
            'e_token&client_'
            'id={0}&client_secret={1}&fb_exchange_token={2}').format(
